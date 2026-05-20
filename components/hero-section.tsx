@@ -25,6 +25,11 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-8 items-center min-h-[calc(100vh-5rem)]">
           {/* Left Content */}
           <div className="space-y-8 py-12">
+                        <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold px-4 py-1.5 rounded-full backdrop-blur-sm">
+              <span>⚠️</span>
+              <span>Delivery Notice: Freshly prepared upon order. Delivery takes up to 3 days.</span>
+            </div>
+
             <div className="space-y-4">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                 <span className="text-foreground">WHERE EVERY</span>
