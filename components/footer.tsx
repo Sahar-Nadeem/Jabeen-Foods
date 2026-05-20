@@ -24,7 +24,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-auto h-21 rounded-full bg-primary/20 flex items-center justify-center">
-                <img src="/images/jabeenlogo.jpeg" alt="Jabeen Foods" className="h-21 w-auto" />
+                <img src="/images/JABEEN FOOD-02.png" alt="Jabeen Foods" className="h-21 w-auto" />
               </div>
               <h3 className="text-primary font-bold text-xl">JABEEN FOODS</h3>
             </div>
