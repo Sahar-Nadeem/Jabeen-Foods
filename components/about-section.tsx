@@ -36,7 +36,7 @@ export function AboutSection() {
               <div className="flex flex-col items-center justify-center h-full space-y-6">
                 {/* Logo Circle */}
                 <div className="w-32 h-32 rounded-full bg-primary/20 flex items-center justify-center">
-                  <img src="/images/jabeenlogo.jpeg" alt="Jabeen Foods" className="h-32 w-32" />    
+                  <img src="/images/JABEEN FOOD-02.png" alt="Jabeen Foods" className="h-32 w-32" />    
                 </div>
                 {/* Brand Text */}
                 <div className="text-center">
