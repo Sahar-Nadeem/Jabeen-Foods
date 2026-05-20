@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { X, MessageCircle, MapPin, User, Phone, Loader2 } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { X, MessageCircle, MapPin, User, Phone, Loader2, Truck, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,20 +15,107 @@ import {
 } from "@/components/ui/select"
 import { useCart } from "@/context/cart-context"
 
-const cities = [
-  "Karachi",
-  "Lahore",
-  "Islamabad",
-  "Rawalpindi",
-  "Faisalabad",
-  "Multan",
-  "Peshawar",
-  "Quetta",
-  "Hyderabad",
-  "Sialkot",
-  "Gujranwala",
-  "Other",
-]
+// Karachi delivery areas with pricing based on distance from Malir
+const deliveryAreas = {
+  // Nearby areas - Rs. 100
+  nearby: {
+    charge: 100,
+    areas: [
+      "Malir",
+      "Malir Cantt",
+      "Saudabad",
+      "Model Colony",
+      "Quaidabad",
+      "Landhi",
+      "Korangi",
+      "Shah Faisal Colony",
+      "Drigh Road",
+      "Kala Board",
+      "Malir Halt",
+      "Jinnah Intl Airport Area",
+    ],
+  },
+  // Medium distance - Rs. 200
+  medium: {
+    charge: 200,
+    areas: [
+      "Gulshan-e-Iqbal",
+      "Gulistan-e-Johar",
+      "PECHS",
+      "Tariq Road",
+      "Bahadurabad",
+      "Gulshan-e-Maymar",
+      "Federal B Area",
+      "Nazimabad",
+      "North Nazimabad",
+      "Liaquatabad",
+      "Ancholi",
+      "Buffer Zone",
+      "Safoora Goth",
+      "University Road",
+      "Karachi University",
+      "NED University Area",
+      "Rashid Minhas Road",
+    ],
+  },
+  // Far areas - Rs. 300
+  far: {
+    charge: 300,
+    areas: [
+      "DHA Phase 1",
+      "DHA Phase 2",
+      "DHA Phase 4",
+      "DHA Phase 5",
+      "DHA Phase 6",
+      "DHA Phase 7",
+      "DHA Phase 8",
+      "Clifton",
+      "Bath Island",
+      "Sea View",
+      "Zamzama",
+      "Khayaban-e-Seher",
+      "Boat Basin",
+      "North Karachi",
+      "Surjani Town",
+      "Orangi Town",
+      "New Karachi",
+      "Sachal Goth",
+      "Scheme 33",
+      "Gadap Town",
+      "Superhighway",
+      "Bin Qasim",
+      "Port Qasim",
+      "Mauripur",
+      "Kemari",
+      "Lyari",
+      "Saddar",
+      "I.I. Chundrigar Road",
+      "Burns Garden",
+      "Garden",
+      "Soldier Bazaar",
+    ],
+  },
+  // Very far - Rs. 500
+  veryFar: {
+    charge: 500,
+    areas: [
+      "Bahria Town Karachi",
+      "Bahria Paradise",
+      "Bahria Midway Commercial",
+      "Super Highway (Beyond Toll Plaza)",
+      "ASF City",
+      "DHA City Karachi",
+    ],
+  },
+}
+
+// Flatten all areas into a single array with their charges
+const allAreas = [
+  ...deliveryAreas.nearby.areas.map((area) => ({ name: area, charge: deliveryAreas.nearby.charge, zone: "nearby" })),
+  ...deliveryAreas.medium.areas.map((area) => ({ name: area, charge: deliveryAreas.medium.charge, zone: "medium" })),
+  ...deliveryAreas.far.areas.map((area) => ({ name: area, charge: deliveryAreas.far.charge, zone: "far" })),
+  ...deliveryAreas.veryFar.areas.map((area) => ({ name: area, charge: deliveryAreas.veryFar.charge, zone: "veryFar" })),
+].sort((a, b) => a.name.localeCompare(b.name))
 
 export function CheckoutModal() {
   const { items, isCheckoutOpen, closeCheckout, totalPrice, clearCart } = useCart()
@@ -37,8 +124,18 @@ export function CheckoutModal() {
     name: "",
     phone: "",
     address: "",
-    city: "",
+    area: "",
   })
+
+  // Calculate delivery charge based on selected area
+  const deliveryCharge = useMemo(() => {
+    if (!formData.area) return 0
+    const selectedArea = allAreas.find((a) => a.name === formData.area)
+    return selectedArea?.charge || 0
+  }, [formData.area])
+
+  // Calculate grand total
+  const grandTotal = totalPrice + deliveryCharge
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -57,15 +154,15 @@ export function CheckoutModal() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleCityChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, city: value }))
+  const handleAreaChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, area: value }))
   }
 
-  const isFormValid = formData.name && formData.phone && formData.address && formData.city
+  const isFormValid = formData.name && formData.phone && formData.address && formData.area
 
   const handlePlaceOrder = () => {
     if (!isFormValid) return
-    
+
     setIsSubmitting(true)
 
     // Build WhatsApp message
@@ -73,7 +170,7 @@ export function CheckoutModal() {
     message += `*Customer Details:*\n`
     message += `Name: ${formData.name}\n`
     message += `Phone: ${formData.phone}\n`
-    message += `City: ${formData.city}\n`
+    message += `Area: ${formData.area}, Karachi\n`
     message += `Address: ${formData.address}\n\n`
     message += `*Order Details:*\n`
     message += `────────────────\n`
@@ -85,7 +182,10 @@ export function CheckoutModal() {
     })
 
     message += `────────────────\n`
-    message += `*Total: Rs. ${totalPrice.toLocaleString()}*\n`
+    message += `Subtotal: Rs. ${totalPrice.toLocaleString()}\n`
+    message += `Delivery (${formData.area}): Rs. ${deliveryCharge}\n`
+    message += `────────────────\n`
+    message += `*Grand Total: Rs. ${grandTotal.toLocaleString()}*\n`
     message += `────────────────\n\n`
     message += `Please confirm this order. Thank you!`
 
@@ -101,7 +201,7 @@ export function CheckoutModal() {
       setIsSubmitting(false)
       clearCart()
       closeCheckout()
-      setFormData({ name: "", phone: "", address: "", city: "" })
+      setFormData({ name: "", phone: "", address: "", area: "" })
     }, 1000)
   }
 
@@ -134,6 +234,17 @@ export function CheckoutModal() {
           </div>
 
           <div className="p-4 sm:p-6 space-y-6">
+            {/* Delivery Notice */}
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 flex items-start gap-3">
+              <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-primary">Delivery Available Only in Karachi</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  We deliver from Nagori Al Ghaffar Housing Society, Malir Block-C, Karachi
+                </p>
+              </div>
+            </div>
+
             {/* Order Summary */}
             <div className="bg-card rounded-xl p-4 border border-border">
               <h3 className="font-semibold text-foreground mb-3">Order Summary</h3>
@@ -149,11 +260,28 @@ export function CheckoutModal() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-border mt-3 pt-3 flex justify-between">
-                <span className="font-semibold text-foreground">Total</span>
-                <span className="font-bold text-primary text-lg">
-                  Rs. {totalPrice.toLocaleString()}
-                </span>
+
+              {/* Pricing Breakdown */}
+              <div className="border-t border-border mt-3 pt-3 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-foreground">Rs. {totalPrice.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm items-center">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Truck className="w-4 h-4" />
+                    Delivery Charges
+                  </span>
+                  <span className={`font-medium transition-all duration-300 ${deliveryCharge > 0 ? "text-accent" : "text-muted-foreground"}`}>
+                    {deliveryCharge > 0 ? `Rs. ${deliveryCharge}` : "Select area"}
+                  </span>
+                </div>
+                <div className="border-t border-border pt-2 flex justify-between">
+                  <span className="font-semibold text-foreground">Grand Total</span>
+                  <span className="font-bold text-primary text-lg">
+                    Rs. {grandTotal.toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -193,38 +321,96 @@ export function CheckoutModal() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="city" className="text-foreground flex items-center gap-2">
+                <Label htmlFor="area" className="text-foreground flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-primary" />
-                  City
+                  Delivery Area (Karachi)
                 </Label>
-                <Select value={formData.city} onValueChange={handleCityChange}>
+                <Select value={formData.area} onValueChange={handleAreaChange}>
                   <SelectTrigger className="bg-card border-border focus:border-primary">
-                    <SelectValue placeholder="Select your city" />
+                    <SelectValue placeholder="Select your area in Karachi" />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
-                    {cities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
+                  <SelectContent className="bg-card border-border max-h-60">
+                    <div className="px-2 py-1.5 text-xs font-semibold text-accent bg-accent/10 sticky top-0">
+                      Nearby Areas - Rs. 100
+                    </div>
+                    {deliveryAreas.nearby.areas.map((area) => (
+                      <SelectItem key={area} value={area} className="pl-4">
+                        {area}
+                      </SelectItem>
+                    ))}
+                    <div className="px-2 py-1.5 text-xs font-semibold text-accent bg-accent/10 sticky top-0 mt-1">
+                      Medium Distance - Rs. 200
+                    </div>
+                    {deliveryAreas.medium.areas.map((area) => (
+                      <SelectItem key={area} value={area} className="pl-4">
+                        {area}
+                      </SelectItem>
+                    ))}
+                    <div className="px-2 py-1.5 text-xs font-semibold text-accent bg-accent/10 sticky top-0 mt-1">
+                      Far Areas - Rs. 300
+                    </div>
+                    {deliveryAreas.far.areas.map((area) => (
+                      <SelectItem key={area} value={area} className="pl-4">
+                        {area}
+                      </SelectItem>
+                    ))}
+                    <div className="px-2 py-1.5 text-xs font-semibold text-accent bg-accent/10 sticky top-0 mt-1">
+                      Extended Areas - Rs. 500
+                    </div>
+                    {deliveryAreas.veryFar.areas.map((area) => (
+                      <SelectItem key={area} value={area} className="pl-4">
+                        {area}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {formData.area && (
+                  <p className="text-xs text-accent animate-in fade-in slide-in-from-top-1 duration-200">
+                    Delivery charge for {formData.area}: Rs. {deliveryCharge}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="address" className="text-foreground flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-primary" />
-                  Delivery Address
+                  Complete Delivery Address
                 </Label>
                 <Textarea
                   id="address"
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  placeholder="Enter your complete delivery address"
+                  placeholder="House/Flat No, Street, Block, Landmark..."
                   rows={3}
                   className="bg-card border-border focus:border-primary resize-none"
                 />
+              </div>
+            </div>
+
+            {/* Delivery Charges Info */}
+            <div className="bg-card/50 rounded-xl p-4 border border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Truck className="w-4 h-4 text-primary" />
+                Delivery Charges Guide
+              </h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Nearby (Malir area)</span>
+                  <span className="text-accent font-medium">Rs. 100</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Medium (Gulshan, Johar)</span>
+                  <span className="text-accent font-medium">Rs. 200</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Far (DHA, Clifton)</span>
+                  <span className="text-accent font-medium">Rs. 300</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Extended (Bahria)</span>
+                  <span className="text-accent font-medium">Rs. 500</span>
+                </div>
               </div>
             </div>
 
@@ -242,7 +428,7 @@ export function CheckoutModal() {
               ) : (
                 <>
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  Place Order via WhatsApp
+                  Place Order - Rs. {grandTotal.toLocaleString()}
                 </>
               )}
             </Button>
