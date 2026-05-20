@@ -10,15 +10,16 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/50" />
       
       {/* Background image */}
-      <div className="absolute inset-0 -z-10">
-        <Image
-          src="/images/hero-food.jpg"
-          alt="Delicious food"
-          fill
-          className="object-cover object-right opacity-60"
-          priority
-        />
-      </div>
+     <div className="relative w-full h-[300px] md:absolute md:inset-0 md:-z-10 md:h-full">
+  <Image
+    src="/images/hero-food.jpg"
+    alt="Delicious food"
+    fill
+    className="object-cover object-center opacity-90 md:opacity-60"
+    priority
+  />
+</div>
+
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 items-center min-h-[calc(100vh-5rem)]">
