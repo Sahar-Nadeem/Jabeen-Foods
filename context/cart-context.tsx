@@ -9,7 +9,7 @@ export interface CartItem {
   priceLabel: string
   image: string
   quantity: number
-  size: "half" | "full"
+  size: "6pcs" | "12pcs"
 }
 
 interface CartContextType {
