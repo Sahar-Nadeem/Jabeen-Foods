@@ -1,3 +1,5 @@
+"use client"
+
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturesBar } from "@/components/features-bar"
@@ -7,6 +9,8 @@ import { WhyChooseUs } from "@/components/why-choose-us"
 import { ReviewsSection } from "@/components/reviews-section"
 import { ContactSection } from "@/components/contact-section"
 import { Footer } from "@/components/footer"
+import { CartSidebar } from "@/components/cart-sidebar"
+import { CheckoutModal } from "@/components/checkout-modal"
 
 export default function Home() {
   return (
@@ -20,6 +24,8 @@ export default function Home() {
       <ReviewsSection />
       <ContactSection />
       <Footer />
+      <CartSidebar />
+      <CheckoutModal />
     </main>
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { CartProvider } from '@/context/cart-context'
 import './globals.css'
 
 const playfair = Playfair_Display({ 
@@ -47,7 +48,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-background">
       <body className={`${playfair.variable} ${poppins.variable} font-sans antialiased`}>
-        {children}
+        <CartProvider>
+          {children}
+        </CartProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
