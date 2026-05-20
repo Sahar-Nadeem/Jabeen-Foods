@@ -160,7 +160,7 @@ function MenuCard({ item }: MenuCardProps) {
                   : "bg-background border border-border text-muted-foreground hover:border-primary/50"
               }`}
             >
-              6
+              6 Pcs
             </button>
             <button
               onClick={() => setSelectedSize("full")}
@@ -170,7 +170,7 @@ function MenuCard({ item }: MenuCardProps) {
                   : "bg-background border border-border text-muted-foreground hover:border-primary/50"
               }`}
             >
-              12
+              12 Pcs
             </button>
           </div>
 
