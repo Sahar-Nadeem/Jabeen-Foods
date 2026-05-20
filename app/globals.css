@@ -1,3 +1,9 @@
+
+@import url('https://cdnfonts.com');
+
+html, body, * {
+  font-family: 'Chopin', sans-serif !important;
+}
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
