@@ -25,7 +25,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
             <div className="flex items-center">
-              <img src="/images/jabeenlogo.jpeg" alt="Jabeen Foods" className="h-19 w-auto" />
+              <img src="/images/JABEEN FOOD-02.png" alt="Jabeen Foods" className="h-19 w-auto" />
             </div>
           </Link>
 
