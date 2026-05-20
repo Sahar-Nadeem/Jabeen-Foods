@@ -1,100 +1,200 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import { Plus, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useCart } from "@/context/cart-context"
 
 const frozenPicks = [
   {
+    id: "beef-shami-kabab",
     name: "Beef Shami Kabab",
-    price: "Rs. 425 / 850",
+    halfPrice: 425,
+    fullPrice: 850,
+    priceLabel: "Rs. 425 / 850",
     image: "/images/beef-shami-kabab.jpg",
   },
   {
+    id: "chicken-shami-kabab",
     name: "Chicken Shami Kabab",
-    price: "Rs. 350 / 700",
+    halfPrice: 350,
+    fullPrice: 700,
+    priceLabel: "Rs. 350 / 700",
     image: "/images/chicken-shami-kabab.jpg",
   },
   {
+    id: "spring-roll",
     name: "Spring Roll",
-    price: "Rs. 330 / 650",
+    halfPrice: 330,
+    fullPrice: 650,
+    priceLabel: "Rs. 330 / 650",
     image: "/images/spring-roll.jpg",
   },
   {
+    id: "noodles-roll",
     name: "Noodles Roll",
-    price: "Rs. 350 / 700",
+    halfPrice: 350,
+    fullPrice: 700,
+    priceLabel: "Rs. 350 / 700",
     image: "/images/noodles-roll.jpg",
   },
   {
+    id: "chicken-cheese-bread-roll",
     name: "Chicken Cheese Bread Roll",
-    price: "Rs. 400 / 800",
+    halfPrice: 400,
+    fullPrice: 800,
+    priceLabel: "Rs. 400 / 800",
     image: "/images/chicken-cheese-bread-roll.jpg",
   },
   {
+    id: "beef-qeema-samosa",
     name: "Beef Qeema Samosa",
-    price: "Rs. 330 / 650",
+    halfPrice: 330,
+    fullPrice: 650,
+    priceLabel: "Rs. 330 / 650",
     image: "/images/beef-qeema-samosa.jpg",
   },
   {
+    id: "chicken-tikka-samosa",
     name: "Chicken Tikka Samosa",
-    price: "Rs. 360 / 720",
+    halfPrice: 360,
+    fullPrice: 720,
+    priceLabel: "Rs. 360 / 720",
     image: "/images/chicken-tikka-samosa.jpg",
   },
   {
+    id: "malai-boti-patties",
     name: "Malai Boti Box Patties",
-    price: "Rs. 400 / 800",
+    halfPrice: 400,
+    fullPrice: 800,
+    priceLabel: "Rs. 400 / 800",
     image: "/images/Malai Boti Box Patties.png",
   },
 ]
 
 const freshChutneys = [
   {
+    id: "red-chutney",
     name: "Red Chutney",
-    price: "Rs. 200 / 350",
+    halfPrice: 200,
+    fullPrice: 350,
+    priceLabel: "Rs. 200 / 350",
     image: "/images/red-chutney.jpg",
   },
   {
+    id: "green-chutney",
     name: "Green Chutney",
-    price: "Rs. 200 / 350",
+    halfPrice: 200,
+    fullPrice: 350,
+    priceLabel: "Rs. 200 / 350",
     image: "/images/green-chutney.jpg",
   },
   {
+    id: "khatti-meethi-chutney",
     name: "Khatti Meethi Chutney",
-    price: "Rs. 300 / 500",
+    halfPrice: 300,
+    fullPrice: 500,
+    priceLabel: "Rs. 300 / 500",
     image: "/images/khatti-meethi-chutney.jpg",
   },
 ]
 
-interface MenuCardProps {
+interface MenuItemType {
+  id: string
   name: string
-  price: string
+  halfPrice: number
+  fullPrice: number
+  priceLabel: string
   image: string
 }
 
-function MenuCard({ name, price, image }: MenuCardProps) {
+interface MenuCardProps {
+  item: MenuItemType
+}
+
+function MenuCard({ item }: MenuCardProps) {
+  const { addToCart } = useCart()
+  const [selectedSize, setSelectedSize] = useState<"half" | "full">("half")
+  const [isAdded, setIsAdded] = useState(false)
+
+  const handleAddToCart = () => {
+    const price = selectedSize === "half" ? item.halfPrice : item.fullPrice
+    addToCart({
+      id: `${item.id}-${selectedSize}`,
+      name: item.name,
+      price,
+      priceLabel: item.priceLabel,
+      image: item.image,
+      size: selectedSize,
+    })
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 1500)
+  }
+
+  const currentPrice = selectedSize === "half" ? item.halfPrice : item.fullPrice
+
   return (
     <Card className="group bg-card border-border overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
       <CardContent className="p-0">
         <div className="relative aspect-square overflow-hidden">
           <Image
-            src={image}
-            alt={name}
+            src={item.image}
+            alt={item.name}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
         <div className="p-4 space-y-3">
-          <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{name}</h3>
-          <p className="text-primary font-bold text-lg">{price}</p>
+          <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{item.name}</h3>
+          
+          {/* Size Toggle */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedSize("half")}
+              className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-full transition-all duration-200 ${
+                selectedSize === "half"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background border border-border text-muted-foreground hover:border-primary/50"
+              }`}
+            >
+              Half
+            </button>
+            <button
+              onClick={() => setSelectedSize("full")}
+              className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-full transition-all duration-200 ${
+                selectedSize === "full"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background border border-border text-muted-foreground hover:border-primary/50"
+              }`}
+            >
+              Full
+            </button>
+          </div>
+
+          <p className="text-primary font-bold text-lg">Rs. {currentPrice}</p>
+          
           <Button
-            asChild
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/80 rounded-full text-sm transition-all duration-300"
+            onClick={handleAddToCart}
+            className={`w-full rounded-full text-sm transition-all duration-300 ${
+              isAdded
+                ? "bg-green-600 hover:bg-green-600 text-white"
+                : "bg-accent text-accent-foreground hover:bg-accent/80"
+            }`}
           >
-            <Link href="https://wa.me/923372156080" target="_blank">
-              Order Now
-            </Link>
+            {isAdded ? (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Added!
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                Add to Cart
+              </>
+            )}
           </Button>
         </div>
       </CardContent>
@@ -120,8 +220,8 @@ export function MenuSection() {
         <div className="mb-16">
           <h3 className="text-2xl sm:text-3xl font-bold text-primary mb-8 text-center">Frozen Picks</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {frozenPicks.map((item, index) => (
-              <MenuCard key={index} {...item} />
+            {frozenPicks.map((item) => (
+              <MenuCard key={item.id} item={item} />
             ))}
           </div>
         </div>
@@ -130,8 +230,8 @@ export function MenuSection() {
         <div>
           <h3 className="text-2xl sm:text-3xl font-bold text-primary mb-8 text-center">Fresh Chutneys</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto">
-            {freshChutneys.map((item, index) => (
-              <MenuCard key={index} {...item} />
+            {freshChutneys.map((item) => (
+              <MenuCard key={item.id} item={item} />
             ))}
           </div>
         </div>

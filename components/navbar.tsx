@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { Menu, X, MessageCircle } from "lucide-react"
+import { Menu, X, MessageCircle, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useCart } from "@/context/cart-context"
 
 const navLinks = [
   { name: "Home", href: "#home" },
@@ -16,14 +16,14 @@ const navLinks = [
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { totalItems, openCart } = useCart()
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
-
             <div className="flex items-center">
               <img src="/images/jabeenlogo.jpeg" alt="Jabeen Foods" className="h-19 w-auto" />
             </div>
@@ -42,27 +42,44 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* WhatsApp Button */}
-          <div className="hidden lg:block">
-            <Button
-              asChild
-              className="bg-card hover:bg-card/80 text-foreground border border-border rounded-full px-6"
+          {/* Right Side Buttons */}
+          <div className="flex items-center gap-3">
+            {/* Cart Button */}
+            <button
+              onClick={openCart}
+              className="relative p-2.5 bg-card hover:bg-card/80 border border-border rounded-full transition-all duration-300 hover:border-primary/50"
+              aria-label="Open cart"
             >
-              <Link href="https://wa.me/923372156080" target="_blank">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Order on WhatsApp
-              </Link>
-            </Button>
-          </div>
+              <ShoppingCart className="w-5 h-5 text-foreground" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center animate-in zoom-in duration-200">
+                  {totalItems}
+                </span>
+              )}
+            </button>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden text-foreground p-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+            {/* WhatsApp Button - Desktop */}
+            <div className="hidden lg:block">
+              <Button
+                asChild
+                className="bg-card hover:bg-card/80 text-foreground border border-border rounded-full px-6"
+              >
+                <Link href="https://wa.me/923372156080" target="_blank">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Order on WhatsApp
+                </Link>
+              </Button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="lg:hidden text-foreground p-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -83,7 +100,7 @@ export function Navbar() {
                 asChild
                 className="bg-card hover:bg-card/80 text-foreground border border-border rounded-full w-fit"
               >
-                <Link href="https://wa.me/923001234567" target="_blank">
+                <Link href="https://wa.me/923372156080" target="_blank">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Order on WhatsApp
                 </Link>
